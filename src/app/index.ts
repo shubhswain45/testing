@@ -6,6 +6,7 @@ import { Post } from './post';
 export async function initServer() {
     const app = express();
 
+    app.use(express.json())
     const graphqlServer = new ApolloServer({
         typeDefs: `
             ${Post.types}
