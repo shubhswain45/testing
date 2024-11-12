@@ -31,4 +31,41 @@ const queries = {
     },
 };
 
-export const resolvers = {queries}
+const mutations = {
+    likePost: async (parent: any, { postId }: { postId: string }) => {
+        // Ensure the user is authenticated
+
+        try {
+            // Attempt to delete the like (unlike the post)
+            await prismaClient.like.delete({
+                where: {
+                    userId_postId: {
+                        userId: "V",  // User ID from the context
+                        postId,
+                    }
+                }
+            });
+
+            // If successful, return a response indicating the post was unliked
+            return false; // Post was unliked
+
+        } catch (error: any) {
+            // If the like doesn't exist, handle the error and create the like (like the post)
+            if (error.code === 'P2025') { // This error code indicates that the record was not found
+                // Create a like entry (Prisma will automatically link the user and post)
+                await prismaClient.like.create({
+                    data: {
+                        userId: "v",  // User ID from the context
+                        postId,  // Post ID to associate the like with
+                    }
+                });
+                return true; // Post was liked
+            }
+
+            // Handle any other errors
+            console.error("Error toggling like:", error);
+            throw new Error(error.message || "An error occurred while toggling the like on the post.");
+        }
+    }
+}
+export const resolvers = {queries, mutations}

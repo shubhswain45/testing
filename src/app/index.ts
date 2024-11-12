@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { Post } from './post';
+import { mutations } from './post/muations';
 
 export async function initServer() {
     const app = express();
@@ -14,11 +15,18 @@ export async function initServer() {
             type Query {
                ${Post.queries}
             }
+
+            type Mutation {
+                ${Post.mutations}
+            }
         `,
         resolvers: {
             Query: {
                ...Post.resolvers.queries
             },
+            Mutation: {
+                ...Post.resolvers.mutations
+            }
         },
     });
 
